@@ -89,10 +89,22 @@ for codes, details in data_basic.items():
     # create a codes column to store the sheetname
     df_building['codes'] = data_building['tab']
 
+    # calculate EUI
+    df_building['EUI'] = df_building['energy'] / data_building['gfa']
+
+    # calculate WEI 
+    estimated_staff = data_building['gfa'] / 9.2 
+    estimated_visitors = 0.10 * estimated_staff
+    df_building['WEI'] = df_building['water'] * 1000 / (estimated_staff + 0.25 * estimated_visitors) / df_building['working_day']
+
+    # calculate carbon index 
+    df_building['carbon index'] = (df_building['carbon_water'] + df_building['carbon_energy']) / data_building['gfa'] / (estimated_staff 
+                                                                                         + 0.25 * estimated_visitors) * 10000
+
     dataframe_building[data_building['tab']] = df_building
 
 # combine all DataFrames into a single DataFrame
 combined_df = pd.concat(dataframe_building.values(), ignore_index=True)
 
-output_file_path = 'store/clean_data.xlsx'
+output_file_path = 'store/clean_data2.xlsx'
 combined_df.to_excel(output_file_path, sheet_name="Summary", index=False)
